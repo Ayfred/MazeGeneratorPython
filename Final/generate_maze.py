@@ -21,32 +21,37 @@ from matplotlib.colors import Normalize
 
 
 class GenerateMaze:
-    entrance = (1, 0)
-
+    """
+    This class generates a maze using the recursive backtracking algorithm
+    
+    @param dim: The dimension of the maze (dim x dim)
+    """
     def __init__(self, dim):
-        self.height = dim
-        self.width = dim
-        self.maze = np.ones((self.width * 2 + 1, self.height * 2 + 1))
-        self.wall = 1
-        self.cell = 0
-        self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-        self.entrance = (1, 0)
-        self.exit = (self.maze.shape[0] - 2, self.maze.shape[1] - 1)
+        self.height = dim # The height of the maze
+        self.width = dim # The width of the maze
+        self.maze = np.ones((self.width * 2 + 1, self.height * 2 + 1)) # The maze represented as a 2D numpy array
+        self.wall = 1 # The wall value
+        self.cell = 0 # The cell value
+        self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] # The possible directions to move in the maze
+        self.entrance = (1, 0) # The entrance of the maze
+        self.exit = (self.maze.shape[0] - 2, self.maze.shape[1] - 1) # The exit of the maze
 
-        self.generateMaze()
+        self.generateMaze() # Generate the maze
 
+    """
+    This method generates the maze using the recursive backtracking algorithm
+    """
     def generateMaze(self):
-        # Define the starting point
-        x, y = (0, 0)
-        self.maze[x][y] = self.cell
+        x, y = (0, 0) # Define the starting point
+        self.maze[x][y] = self.cell # Set the starting point as a cell
 
         # Initialize the stack with the starting point
         stack = [(x, y)]
         while len(stack) > 0:
-            x, y = stack[-1]
+            x, y = stack[-1] # Get the current position
 
-            directions = self.directions
-            random.shuffle(directions)
+            directions = self.directions # Get the possible directions to move
+            random.shuffle(directions) # Shuffle the directions to move
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
                 if self.width > nx >= 0 <= ny < self.height and self.maze[2 * nx + 1][2 * ny + 1] == self.wall:
@@ -62,6 +67,12 @@ class GenerateMaze:
         self.maze[self.entrance] = self.cell
         self.maze[self.exit] = self.cell
 
+    """
+    This method draws the maze using matplotlib
+    
+    @param path: The solution path to draw
+    @param iterations: The total number of iterations to display
+    """
     def drawMaze(self, path=None, iterations=0):
         fig, ax = plt.subplots(figsize=(10, 10))
 
@@ -80,6 +91,7 @@ class GenerateMaze:
         ax.set_xticks([])
         ax.set_yticks([])
 
+        # Create a text object for the total number of iterations
         iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center', transform=ax.transAxes, fontsize=14)
         ax.set_title("Solution Path", fontsize=16)
         iterations_text.set_text(f"Total Iterations: {iterations}")
@@ -91,14 +103,22 @@ class GenerateMaze:
 
         plt.show()
 
+    """
+    This method animates the solution path using matplotlib
+    
+    @param path: The solution path to animate
+    @param iterations: The total number of iterations to display
+    """
     def animate_path(self, path, iterations):
         fig, ax = plt.subplots(figsize=(10, 10))
 
+        # Set the border color to white
         fig.patch.set_edgecolor('white')
         fig.patch.set_linewidth(0)
 
         ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
 
+        # Draw the solution path if it exists
         if path is not None:
             x_coords = [x[1] for x in path]
             y_coords = [y[0] for y in path]
@@ -110,6 +130,7 @@ class GenerateMaze:
         ax.set_xticks([])
         ax.set_yticks([])
 
+        # Create a text object for the total number of iterations
         iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center', transform=ax.transAxes, fontsize=14)
         ax.set_title("Solution Path Animation", fontsize=16)
         iterations_text.set_text(f"Total Iterations: {iterations}")
@@ -121,12 +142,13 @@ class GenerateMaze:
 
         plt.show()
 
-
-
-
-
-
-
+    """
+    This method animates the value iteration process using matplotlib
+    
+    @param path: The solution path to animate
+    @param values: The value matrix to visualize
+    @param iterations: The total number of iterations to display
+    """
     def value_iteration_animation(self, path, values, iterations):
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
@@ -140,7 +162,7 @@ class GenerateMaze:
         cmap = plt.cm.inferno
 
         plotted_path = []  # List to store the plotted path coordinates
-
+        
         def draw_grid():
             ax.cla()
             ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
@@ -171,12 +193,14 @@ class GenerateMaze:
         plt.show()
         return fig, ax, ani
 
-
-
-
-
-
-        
+    """
+    This method animates the policy iteration process using matplotlib
+    
+    @param path: The solution path to animate
+    @param policy: The policy matrix to visualize
+    @param values: The value matrix to visualize
+    @param iterations: The total number of iterations to display
+    """        
     def policy_iteration_animation(self, path, policy, values, iterations):
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
@@ -225,7 +249,8 @@ class GenerateMaze:
 
             ax.set_xticks([])
             ax.set_yticks([])
-        
+
+        # Display the total number of iterations        
         iteration_text.set_text(f"Total Iterations: {iterations}")
 
         ani = animation.FuncAnimation(fig, animate, frames=iterations, interval=100, repeat=False)

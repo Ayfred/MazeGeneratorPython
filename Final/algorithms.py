@@ -42,7 +42,7 @@ class Algorithms:
     @param animation: True if the animation is enabled, False otherwise
     """
     def option(self, option, dim, dim2, dim3, animation):
-        if option == 1:
+        if option == 1: # BFS
             print("Starting solving the maze using BFS algorithm")
             self.path, self.iterations = self.bfs_algorithm()
             print("Drawing the maze with the solution path")
@@ -52,7 +52,7 @@ class Algorithms:
             else:
                 self.mazeGenerator.drawMaze(self.path, self.iterations)
 
-        elif option == 2:
+        elif option == 2: # DFS
             print("Starting solving the maze using DFS algorithm")
             self.path, self.iterations = self.dfs_algorithm()
             print("Drawing the maze with the solution path")
@@ -62,7 +62,7 @@ class Algorithms:
             else:
                 self.mazeGenerator.drawMaze(self.path, self.iterations)
 
-        elif option == 3:
+        elif option == 3: # A*
             print("Starting solving the maze using A* algorithm")
             self.path, self.iterations = self.astar_algorithm()
             print("Drawing the maze with the solution path")
@@ -72,7 +72,7 @@ class Algorithms:
             else:
                 self.mazeGenerator.drawMaze(self.path, self.iterations)
 
-        elif option == 4:
+        elif option == 4: # Value Iteration
             print("Starting solving the maze using Value Iteration algorithm")
             self.path, self.iterations, values = self.value_iteration(
                 reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit))
@@ -83,7 +83,7 @@ class Algorithms:
             else:
                 self.mazeGenerator.drawMaze(self.path, self.iterations)
 
-        elif option == 5:
+        elif option == 5: # Policy Iteration
             print("Starting solving the maze using Policy Iteration algorithm")
             self.path, self.iterations, policy, values = self.policy_iteration(
                 create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit))
@@ -94,7 +94,7 @@ class Algorithms:
             else: 
                 self.mazeGenerator.drawMaze(self.path, self.iterations)
 
-        elif option == 6:
+        elif option == 6: # Comparison
             results_time = []
             results_iterations = []
             dims = [dim, dim2, dim3]
@@ -117,6 +117,7 @@ class Algorithms:
 
                 repetitions = 50 
 
+                # Run the algorithms multiple times to get the average time and iterations
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
@@ -205,21 +206,21 @@ class Algorithms:
         maze = self.mazeGenerator.maze
         possible_moves = self.mazeGenerator.directions
 
-        q = Queue()
-        q.put([start])
+        q = Queue() # FIFO
+        q.put([start]) # Add the start position to the queue
 
         iterations = 0
-        while q.not_empty:
+        while q.not_empty: # While the queue is not empty
             path = q.get()
-            current_pos = path[-1]
+            current_pos = path[-1] 
 
-            if current_pos == end:
+            if current_pos == end: # If the current position is the exit
                 return path, iterations
             else:
-                for move in possible_moves:
+                for move in possible_moves: # For each possible move
                     new_position = (current_pos[0] + move[0], current_pos[1] + move[1])
                     if maze[new_position[0], new_position[1]] == self.mazeGenerator.cell:
-                        if new_position not in path:
+                        if new_position not in path: # If the new position is not in the path
                             new_path = list(path)
                             new_path.append(new_position)
                             q.put(new_path)
@@ -239,17 +240,17 @@ class Algorithms:
         maze = self.mazeGenerator.maze
         possible_moves = self.mazeGenerator.directions
 
-        stack = [[start]]
+        stack = [[start]] # Add the start position to the stack
 
         iterations = 0
         while stack:
-            path = stack.pop()
+            path = stack.pop() # Pop the last element from the stack
             current_pos = path[-1]
 
-            if current_pos == end:
+            if current_pos == end: # If the current position is the exit
                 return path, iterations
             else:
-                for move in possible_moves:
+                for move in possible_moves: # For each possible move
                     new_position = (current_pos[0] + move[0], current_pos[1] + move[1])
                     if maze[new_position[0], new_position[1]] == self.mazeGenerator.cell:
                         if new_position not in path:
@@ -270,10 +271,10 @@ class Algorithms:
     def create_path(self, came_from):
         current_pos = self.mazeGenerator.exit
         path = [current_pos]
-        while current_pos != self.mazeGenerator.entrance:
-            current_pos = came_from[current_pos]
+        while current_pos != self.mazeGenerator.entrance: # While the current position is not the entrance
+            current_pos = came_from[current_pos] # Get the next position
             path.append(current_pos)
-        return path[::-1]
+        return path[::-1] # Reverse the path
 
     """
     A* Algorithm
@@ -288,19 +289,19 @@ class Algorithms:
         maze = self.mazeGenerator.maze
         possible_moves = self.mazeGenerator.directions
 
-        open_set = []
-        closed_set = set()
-        came_from = {}
+        open_set = [] # Priority queue
+        closed_set = set() # Set
+        came_from = {} # Dictionary
 
-        gscore = {start: 0}
-        fscore = {start: heuristic(start, end)}
-        heapq.heappush(open_set, (0, start))
+        gscore = {start: 0} # Dictionary gscore
+        fscore = {start: heuristic(start, end)} # Dictionary fscore
+        heapq.heappush(open_set, (0, start)) # Push the start position to the priority queue
 
         iterations = 0
         while open_set:
-            current_pos = heapq.heappop(open_set)[1]
+            current_pos = heapq.heappop(open_set)[1] # Pop the first element from the priority queue
 
-            closed_set.add(current_pos)
+            closed_set.add(current_pos) # Add the current position to the set
 
             if current_pos == end:
                 return self.create_path(came_from), iterations
@@ -346,7 +347,7 @@ class Algorithms:
                 current_pos = next_position
             else:
                 break
-        return path 
+        return path
 
     """
     Next Position
@@ -386,7 +387,7 @@ class Algorithms:
         maze = self.mazeGenerator.maze
         possible_moves = self.mazeGenerator.directions
 
-        value = np.zeros(maze.shape)
+        value = np.zeros(maze.shape) # Initialize the value matrix
 
         convergence = False
         iterations = 0
@@ -410,7 +411,7 @@ class Algorithms:
                 convergence = True
             iterations += 1
 
-        path = self.find_path(value)
+        path = self.find_path(value) # Find the path using the value matrix
 
         return path, iterations, value
 
@@ -433,8 +434,8 @@ class Algorithms:
         maze = self.mazeGenerator.maze
         possible_moves = self.mazeGenerator.directions
 
-        value = np.zeros(maze.shape)
-        policy = np.random.randint(0, len(possible_moves), maze.shape)
+        value = np.zeros(maze.shape) # Initialize the value matrix
+        policy = np.random.randint(0, len(possible_moves), maze.shape) # Initialize the policy matrix randomly
 
         convergence = False
         iterations = 0

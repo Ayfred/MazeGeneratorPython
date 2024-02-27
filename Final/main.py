@@ -12,7 +12,8 @@ import algorithms
 
 
 def main():
-    if len(sys.argv) != 2 and len(sys.argv) != 3:
+    # Check if the user has entered the correct number of arguments
+    if len(sys.argv) < 2:
         print("Usage: python Main.py <option> <animate>")
         print(
             "Invalid option. Please use '-1' for Bfs, '-2' for Dfs, '-3' for A*, '-4' for Value Iteration, "
@@ -23,11 +24,13 @@ def main():
 
     option = sys.argv[1]
 
+    # Check if the user wants to animate the process
     if len(sys.argv) == 3 and sys.argv[2] == 'y':
         animate = True
     else:
         animate = False
 
+    # Run the algorithm based on the user's choice
     if option == '-1':
         dim = input("Enter the dimension of the maze: ")
         algorithms.Algorithms(int(dim), 1, animation=animate)
