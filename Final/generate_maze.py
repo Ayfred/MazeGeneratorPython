@@ -81,7 +81,7 @@ class GenerateMaze:
         ax.set_yticks([])
 
         iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center', transform=ax.transAxes, fontsize=14)
-        ax.set_title("Solution Path Animation", fontsize=16)
+        ax.set_title("Solution Path", fontsize=16)
         iterations_text.set_text(f"Total Iterations: {iterations}")
 
         # Draw entry and exit arrows
@@ -193,13 +193,13 @@ class GenerateMaze:
             arrow_head_length = 0.3
 
             # Directional arrows
-            if policy[i, j] == 3:  # Up
+            if policy[i, j] == 1:  # Up
                 ax.arrow(j, i, 0, -arrow_size, head_width=arrow_head_width, head_length=arrow_head_length, fc=color, ec=color)
-            elif policy[i, j] == 0:  # Right
+            elif policy[i, j] == 3:  # Right
                 ax.arrow(j, i, arrow_size, 0, head_width=arrow_head_width, head_length=arrow_head_length, fc=color, ec=color)
-            elif policy[i, j] == 1:  # Down
+            elif policy[i, j] == 2:  # Down
                 ax.arrow(j, i, 0, arrow_size, head_width=arrow_head_width, head_length=arrow_head_length, fc=color, ec=color)
-            elif policy[i, j] == 2:  # Left
+            elif policy[i, j] == 0:  # Left
                 ax.arrow(j, i, -arrow_size, 0, head_width=arrow_head_width, head_length=arrow_head_length, fc=color, ec=color)
 
         # Draw all arrows with color intensity based on values

@@ -225,6 +225,16 @@ class Algorithms:
                             stack.append(new_track)
             iterations += 1
         return None, iterations
+    
+
+    def create_path(self, came_from):
+        current_pos = self.mazeGenerator.exit
+        path = [current_pos]
+        while current_pos != self.mazeGenerator.entrance:
+            current_pos = came_from[current_pos]
+            path.append(current_pos)
+        return path[::-1]
+
 
     def astar_algorithm(self):
         start = self.mazeGenerator.entrance
@@ -247,7 +257,7 @@ class Algorithms:
             closed_set.add(current_pos)
 
             if current_pos == end:
-                return create_path(start, end, came_from), iterations
+                return self.create_path(came_from), iterations
 
             for move in possible_moves:
                 new_position = (current_pos[0] + move[0], current_pos[1] + move[1])
@@ -264,6 +274,38 @@ class Algorithms:
             iterations += 1
         return None, iterations
 
+
+    def find_path(self, value, policy=None):
+        path = [self.mazeGenerator.entrance]
+        current_pos = self.mazeGenerator.entrance
+        while current_pos != self.mazeGenerator.exit:
+
+            if policy is None:
+                next_position = self.next_position(current_pos, value)
+            else:
+                action = policy[current_pos[0], current_pos[1]]
+                next_position = (current_pos[0] + self.mazeGenerator.directions[action][0],
+                                 current_pos[1] + self.mazeGenerator.directions[action][1])
+
+            if next_position is not None and is_within_bounds(self.mazeGenerator.maze, next_position):
+                path.append(next_position)
+                current_pos = next_position
+            else:
+                break
+        return path 
+
+    def next_position(self, current, value):
+        max_value = float('-inf')
+        next_position = None
+        for move in self.mazeGenerator.directions:
+            new_position = (current[0] + move[0], current[1] + move[1])
+            if is_within_bounds(self.mazeGenerator.maze, new_position):
+                if value[new_position] > max_value:
+                    max_value = value[new_position]
+                    next_position = new_position
+        return next_position
+
+
     def value_iteration(self, reward, gamma=0.99, convergence_threshold=0.001):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -271,44 +313,30 @@ class Algorithms:
         possible_moves = self.mazeGenerator.directions
 
         value = np.zeros(maze.shape)
-        convergence = False
 
+        convergence = False
         iterations = 0
         while not convergence:
             delta = 0
             for i in range(maze.shape[0]):
                 for j in range(maze.shape[1]):
-                    if maze[i, j] == self.mazeGenerator.wall:
+                    if maze[i, j] == self.mazeGenerator.wall:  # Assuming wall cells are not to be updated
                         continue
                     temp = value[i, j]
                     max_value = float("-inf")
                     for move in possible_moves:
                         new_position = (i + move[0], j + move[1])
-                        if 0 <= new_position[0] < maze.shape[0] and 0 <= new_position[1] < maze.shape[1]:
-                            max_value = max(max_value, value[new_position])
+                        if is_within_bounds(maze, new_position):
+                            # Assuming reward is a function or matrix that gives reward for moving to the new position
+                            max_value = max(max_value, reward[new_position] + gamma * value[new_position])
                             #max_value = max(max_value, reward[i, j] + gamma * value[new_position])
-                    value[i, j] = reward[i, j] + gamma * max_value
+                    value[i, j] = max_value  # Update the value to the maximum value found
                     delta = max(delta, abs(temp - value[i, j]))
             if delta < convergence_threshold:
                 convergence = True
             iterations += 1
 
-        path = [start]
-        current = start
-        while current != end:
-            max_value = float('-inf')
-            next_position = None
-            for move in possible_moves:
-                new_position = (current[0] + move[0], current[1] + move[1])
-                if 0 <= new_position[0] < maze.shape[0] and 0 <= new_position[1] < maze.shape[1]:
-                    if value[new_position] > max_value:
-                        max_value = value[new_position]
-                        next_position = new_position
-            if next_position is not None:
-                path.append(next_position)
-                current = next_position
-            else:
-                break
+        path = self.find_path(value)
 
         return path, iterations, value
 
@@ -334,7 +362,7 @@ class Algorithms:
                         action = policy[i, j]
                         sum_value = 0
                         new_position = (i + possible_moves[action][0], j + possible_moves[action][1])
-                        if 0 <= new_position[0] < maze.shape[0] and 0 <= new_position[1] < maze.shape[1]:
+                        if is_within_bounds(maze, new_position):
                             sum_value += reward[i, j] + gamma * value[new_position]
                         value[i, j] = sum_value
                         delta = max(delta, abs(temp - value[i, j]))
@@ -348,9 +376,9 @@ class Algorithms:
                         continue
                     old_action = policy[i, j]
                     max_value = float('-inf')
-                    for k in range(4):
+                    for k in range(len(possible_moves)):
                         new_position = (i + possible_moves[k][0], j + possible_moves[k][1])
-                        if 0 <= new_position[0] < maze.shape[0] and 0 <= new_position[1] < maze.shape[1]:
+                        if is_within_bounds(maze, new_position):
                             if value[new_position] > max_value:
                                 max_value = value[new_position]
                                 policy[i, j] = k
@@ -360,34 +388,22 @@ class Algorithms:
                 break
             iterations += 1
 
-        path = [start]
-        current = start
-        while current != end:
-            action = policy[current[0], current[1]]
-            new_position = (current[0] + possible_moves[action][0], current[1] + possible_moves[action][1])
-            if 0 <= new_position[0] < maze.shape[0] and 0 <= new_position[1] < maze.shape[1]:
-                path.append(new_position)
-                current = new_position
-            else:
-                break
+        path = self.find_path(value, policy)
 
         return path, iterations, policy, value
 
+def is_within_bounds(maze, position):
+    return 0 <= position[0] < maze.shape[0] and 0 <= position[1] < maze.shape[1]
+
 
 def heuristic(a, b):
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+    return abs(a[0] - b[0]) + abs(a[1] - b[1]) # Manhattan distance
 
 
-def create_path(start, end, came_from):
-    current = end
-    path = [current]
-    while current != start:
-        current = came_from[current]
-        path.append(current)
-    return path[::-1]
+
 
 
 def create_reward(maze, end):
     reward = np.zeros(maze.shape)
-    reward[end] = 200
+    reward[end] = 300
     return reward
