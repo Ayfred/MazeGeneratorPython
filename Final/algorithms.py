@@ -14,14 +14,33 @@ import matplotlib.pyplot as plt
     @Date: 2024-02-18
 """
 
-
 class Algorithms:
+    """
+    Constructor
+
+    @param dim: The dimension of the maze
+    @param option: The option to choose the algorithm
+    @param dim2: The second dimension of the maze
+    @param dim3: The third dimension of the maze
+    @param animation: True if the animation is enabled, False otherwise
+    """
     def __init__(self, dim, option, dim2=None, dim3=None, animation=False):
         self.mazeGenerator = generate_maze.GenerateMaze(dim)
         self.path = None
         self.iterations = 0
         self.option(option, dim, dim2, dim3, animation)
 
+    """
+    Option
+
+    Choose the algorithm to solve the maze
+
+    @param option: The option to choose the algorithm
+    @param dim: The dimension of the maze
+    @param dim2: The second dimension of the maze
+    @param dim3: The third dimension of the maze
+    @param animation: True if the animation is enabled, False otherwise
+    """
     def option(self, option, dim, dim2, dim3, animation):
         if option == 1:
             print("Starting solving the maze using BFS algorithm")
@@ -173,6 +192,13 @@ class Algorithms:
                 "Invalid option. Please use '-1' for Bfs, '-2' for Dfs, '-3' for A*, '-4' for Value Iteration, "
                 "'-5' for Policy Iteration, '-6' for Comparison.")
 
+    """
+    BFS Algorithm
+    
+    The BFS algorithm is an uninformed search algorithm that explores all the nodes in the graph before moving to the next level
+    
+    @return: The path and the number of iterations
+    """
     def bfs_algorithm(self):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -200,6 +226,13 @@ class Algorithms:
             iterations += 1
         return None, iterations
 
+    """
+    Depth First Search Algorithm
+    
+    The DFS algorithm is an uninformed search algorithm that explores as far as possible along each branch before backtracking
+    
+    @return: The path and the number of iterations
+    """
     def dfs_algorithm(self):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -225,8 +258,15 @@ class Algorithms:
                             stack.append(new_track)
             iterations += 1
         return None, iterations
-    
 
+    """
+    Create Path
+    
+    Create the path using the came_from dictionary
+    
+    @param came_from: The dictionary containing the path
+    @return: The path
+    """
     def create_path(self, came_from):
         current_pos = self.mazeGenerator.exit
         path = [current_pos]
@@ -235,7 +275,13 @@ class Algorithms:
             path.append(current_pos)
         return path[::-1]
 
+    """
+    A* Algorithm
+    
+    The A* algorithm is an informed search algorithm that uses a heuristic to find the shortest path
 
+    @return: The path and the number of iterations
+    """
     def astar_algorithm(self):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -274,7 +320,15 @@ class Algorithms:
             iterations += 1
         return None, iterations
 
+    """
+    Find Path
 
+    Find the path using the value matrix and the policy matrix
+
+    @param value: The value matrix
+    @param policy: The policy matrix
+    @return: The path
+    """
     def find_path(self, value, policy=None):
         path = [self.mazeGenerator.entrance]
         current_pos = self.mazeGenerator.entrance
@@ -294,6 +348,15 @@ class Algorithms:
                 break
         return path 
 
+    """
+    Next Position
+
+    The next position is the position with the maximum value in the value matrix
+ 
+    @param current: The current position
+    @param value: The value matrix
+    @return: The next position
+    """
     def next_position(self, current, value):
         max_value = float('-inf')
         next_position = None
@@ -305,7 +368,18 @@ class Algorithms:
                     next_position = new_position
         return next_position
 
+    """
+    Value Iteration Algorithm
 
+    1. Initialize the value function
+    2. Update the value function
+    3. Repeat step 2 until convergence
+
+    @param reward: The reward matrix
+    @param gamma: The discount factor
+    @param convergence_threshold: The threshold to determine convergence
+    @return: The path, number of iterations and value
+    """
     def value_iteration(self, reward, gamma=0.99, convergence_threshold=0.001):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -340,6 +414,19 @@ class Algorithms:
 
         return path, iterations, value
 
+    """
+    Policy Iteration Algorithm
+
+    1. Initialize the policy randomly
+    2. Evaluate the policy
+    3. Improve the policy
+    4. Repeat steps 2 and 3 until the policy does not change
+
+    @param reward: The reward matrix
+    @param gamma: The discount factor
+    @param convergence_threshold: The threshold to determine convergence
+    @return: The path, number of iterations, policy and value
+    """
     def policy_iteration(self, reward, gamma=0.99, convergence_threshold=0.001):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -392,17 +479,41 @@ class Algorithms:
 
         return path, iterations, policy, value
 
+"""
+is_within_bounds
+
+Check if the position is within the bounds of the maze
+
+@param maze: The maze
+@param position: The position
+
+@return: True if the position is within the bounds, False otherwise
+"""
 def is_within_bounds(maze, position):
     return 0 <= position[0] < maze.shape[0] and 0 <= position[1] < maze.shape[1]
 
+"""
+heuristic
 
+The heuristic function is the Manhattan distance
+
+@param a: The first position
+@param b: The second position
+
+@return: The Manhattan distance
+"""
 def heuristic(a, b):
     return abs(a[0] - b[0]) + abs(a[1] - b[1]) # Manhattan distance
 
+"""
+create_reward
 
+Create the reward matrix
 
+@param maze: The maze
+@param end: The end position
 
-
+@return: The reward matrix"""
 def create_reward(maze, end):
     reward = np.zeros(maze.shape)
     reward[end] = 300
