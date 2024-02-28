@@ -13,6 +13,9 @@ import matplotlib.pyplot as plt
     @Author: Maxime Mu
     @Date: 2024-02-18
 """
+set_seed = 3
+np.random.seed(set_seed)
+
 
 class Algorithms:
     """
@@ -75,7 +78,7 @@ class Algorithms:
         elif option == 4: # Value Iteration
             print("Starting solving the maze using Value Iteration algorithm")
             self.path, self.iterations, values = self.value_iteration(
-                reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit))
+                reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit, reward_value=500))
             print("Drawing the maze with the solution path")
 
             if animation:
@@ -118,6 +121,7 @@ class Algorithms:
                 repetitions = 50 
 
                 # Run the algorithms multiple times to get the average time and iterations
+                print("Starting processing bfs...")
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
@@ -127,7 +131,9 @@ class Algorithms:
                     average_iterations_bfs += bfs_iterations
                 average_time_bfs /= repetitions
                 average_iterations_bfs /= repetitions
+                print("Finished processing bfs...")
 
+                print("Starting processing dfs...")
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
@@ -137,7 +143,9 @@ class Algorithms:
                     average_iterations_dfs += dfs_iterations
                 average_time_dfs /= repetitions
                 average_iterations_dfs /= repetitions
+                print("Finished processing dfs...")
                 
+                print("Starting processing astar...")
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
@@ -147,18 +155,22 @@ class Algorithms:
                     average_iterations_astar += astar_iterations
                 average_time_astar /= repetitions
                 average_iterations_astar /= repetitions
+                print("Finished processing astar...")
 
+                print("Starting processing value iteration...")
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
                     self.path, value_iterations, values = self.value_iteration(
-                        reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit))
+                        reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit, reward_value=500))
                     end = time.time()
                     average_time_value_iteration += (end - start)
                     average_iterations_value_iteration += value_iterations
                 average_time_value_iteration /= repetitions
                 average_iterations_value_iteration /= repetitions
+                print("Finished processing value iteration...")
 
+                print("Starting processing policy iteration...")
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
@@ -254,9 +266,9 @@ class Algorithms:
                     new_position = (current_pos[0] + move[0], current_pos[1] + move[1])
                     if maze[new_position[0], new_position[1]] == self.mazeGenerator.cell:
                         if new_position not in path:
-                            new_track = list(path)
-                            new_track.append(new_position)
-                            stack.append(new_track)
+                            new_path = list(path)
+                            new_path.append(new_position)
+                            stack.append(new_path)
             iterations += 1
         return None, iterations
 
@@ -359,7 +371,7 @@ class Algorithms:
     @return: The next position
     """
     def next_position(self, current, value):
-        max_value = float('-inf')
+        max_value = np.NINF
         next_position = None
         for move in self.mazeGenerator.directions:
             new_position = (current[0] + move[0], current[1] + move[1])
@@ -381,7 +393,7 @@ class Algorithms:
     @param convergence_threshold: The threshold to determine convergence
     @return: The path, number of iterations and value
     """
-    def value_iteration(self, reward, gamma=0.99, convergence_threshold=0.001):
+    def value_iteration(self, reward, gamma=0.99, convergence_threshold=0.00000000001):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
         maze = self.mazeGenerator.maze
@@ -398,12 +410,12 @@ class Algorithms:
                     if maze[i, j] == self.mazeGenerator.wall:  # Assuming wall cells are not to be updated
                         continue
                     temp = value[i, j]
-                    max_value = float("-inf")
+                    max_value = np.NINF
                     for move in possible_moves:
                         new_position = (i + move[0], j + move[1])
-                        if is_within_bounds(maze, new_position):
+                        if is_within_bounds(maze, new_position) and maze[new_position] != self.mazeGenerator.wall:
                             # Assuming reward is a function or matrix that gives reward for moving to the new position
-                            max_value = max(max_value, reward[new_position] + gamma * value[new_position])
+                             max_value = max(max_value, reward[new_position] + gamma * value[new_position])
                             #max_value = max(max_value, reward[i, j] + gamma * value[new_position])
                     value[i, j] = max_value  # Update the value to the maximum value found
                     delta = max(delta, abs(temp - value[i, j]))
@@ -418,7 +430,7 @@ class Algorithms:
     """
     Policy Iteration Algorithm
 
-    1. Initialize the policy randomly
+    1. Initialize the policy randomlys
     2. Evaluate the policy
     3. Improve the policy
     4. Repeat steps 2 and 3 until the policy does not change
@@ -458,6 +470,8 @@ class Algorithms:
                     break
 
             policy_stable = True
+
+
             for i in range(maze.shape[0]):
                 for j in range(maze.shape[1]):
                     if maze[i, j] == self.mazeGenerator.wall:
@@ -515,7 +529,7 @@ Create the reward matrix
 @param end: The end position
 
 @return: The reward matrix"""
-def create_reward(maze, end):
+def create_reward(maze, end, reward_value=300):
     reward = np.zeros(maze.shape)
-    reward[end] = 300
+    reward[end] = reward_value
     return reward

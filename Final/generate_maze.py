@@ -19,6 +19,7 @@ from matplotlib.colors import Normalize
     @Date: 2024-02-18
 """
 
+set_seed = random.seed(0)
 
 class GenerateMaze:
     """
