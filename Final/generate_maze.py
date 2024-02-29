@@ -19,10 +19,10 @@ from matplotlib.colors import Normalize
     @Date: 2024-02-18
 """
 
-set_seed = random.seed(0)
-
 
 class GenerateMaze:
+    #random.seed(0)
+
     """
     This class generates a maze using the recursive backtracking algorithm
     
@@ -75,10 +75,9 @@ class GenerateMaze:
     This method draws the maze using matplotlib
     
     @param path: The solution path to draw
-    @param iterations: The total number of iterations to display
     """
 
-    def drawMaze(self, path=None, iterations=0):
+    def drawMaze(self, path=None):
         fig, ax = plt.subplots(figsize=(10, 10))
 
         # Set the border color to white
@@ -96,11 +95,7 @@ class GenerateMaze:
         ax.set_xticks([])
         ax.set_yticks([])
 
-        # Create a text object for the total number of iterations
-        iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center',
-                                  transform=ax.transAxes, fontsize=14)
         ax.set_title("Solution Path", fontsize=16)
-        iterations_text.set_text(f"Total Iterations: {iterations}")
 
         # Draw entry and exit arrows
         ax.arrow(0, 1, .4, 0, fc='green', ec='green', head_width=0.3, head_length=0.3)
@@ -113,10 +108,9 @@ class GenerateMaze:
     This method animates the solution path using matplotlib
     
     @param path: The solution path to animate
-    @param iterations: The total number of iterations to display
     """
 
-    def animate_path(self, path, iterations):
+    def animate_path(self, path):
         fig, ax = plt.subplots(figsize=(10, 10))
 
         # Set the border color to white
@@ -137,11 +131,7 @@ class GenerateMaze:
         ax.set_xticks([])
         ax.set_yticks([])
 
-        # Create a text object for the total number of iterations
-        iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center',
-                                  transform=ax.transAxes, fontsize=14)
         ax.set_title("Solution Path Animation", fontsize=16)
-        iterations_text.set_text(f"Total Iterations: {iterations}")
 
         # Draw entry and exit arrows
         ax.arrow(0, 1, .4, 0, fc='green', ec='green', head_width=0.3, head_length=0.3)
@@ -155,10 +145,9 @@ class GenerateMaze:
     
     @param path: The solution path to animate
     @param values: The value matrix to visualize
-    @param iterations: The total number of iterations to display
     """
 
-    def value_iteration_animation(self, path, values, iterations):
+    def value_iteration_animation(self, path, values):
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
         ax.set_title("Value Iteration Visualization", fontsize=16)
@@ -193,10 +182,6 @@ class GenerateMaze:
             ax.set_xticks([])
             ax.set_yticks([])
 
-            # Display the total number of iterations
-            ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center', transform=ax.transAxes,
-                    fontsize=14)
-
             if frame == len(path) - 1:
                 ani.event_source.stop()
 
@@ -210,10 +195,9 @@ class GenerateMaze:
     @param path: The solution path to animate
     @param policy: The policy matrix to visualize
     @param values: The value matrix to visualize
-    @param iterations: The total number of iterations to display
     """
 
-    def policy_iteration_animation(self, path, policy, values, iterations):
+    def policy_iteration_animation(self, path, policy, values):
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
         ax.set_title("Policy Iteration Visualization", fontsize=14)
@@ -249,9 +233,6 @@ class GenerateMaze:
                     val_color = cmap(norm(values[i, j]))
                     draw_arrow(i, j, color=val_color)
 
-        # Create a text object for iteration count
-        iteration_text = ax.text(0.5, 1.05, "", ha='center', va='center', transform=ax.transAxes, fontsize=14)
-
         def animate(frame):
             if frame < len(path):
                 y, x = path[frame]
@@ -266,9 +247,6 @@ class GenerateMaze:
             ax.set_xticks([])
             ax.set_yticks([])
 
-        # Display the total number of iterations        
-        iteration_text.set_text(f"Total Iterations: {iterations}")
-
-        ani = animation.FuncAnimation(fig, animate, frames=iterations, interval=100, repeat=False)
+        ani = animation.FuncAnimation(fig, animate, interval=100, repeat=False)
         plt.show()
         return fig, ax, ani

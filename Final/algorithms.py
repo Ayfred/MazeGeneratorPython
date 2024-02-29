@@ -32,7 +32,6 @@ class Algorithms:
     def __init__(self, dim, option, dim2=None, dim3=None, animation=False):
         self.mazeGenerator = generate_maze.GenerateMaze(dim)
         self.path = None
-        self.iterations = 0
         self.option(option, dim, dim2, dim3, animation)
 
     """
@@ -51,83 +50,76 @@ class Algorithms:
         Decorator.enable_timer_decorator = True
         if option == 1:  # BFS
             print("Starting solving the maze using BFS algorithm")
-            self.path, self.iterations, memory_usage_info, peak = self.bfs_algorithm()
+            self.path, memory_usage_info, peak = self.bfs_algorithm()
             print("Drawing the maze with the solution path")
             print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
-                self.mazeGenerator.animate_path(self.path, self.iterations)
+                self.mazeGenerator.animate_path(self.path)
             else:
-                self.mazeGenerator.drawMaze(self.path, self.iterations)
+                self.mazeGenerator.drawMaze(self.path)
 
         elif option == 2:  # DFS
             print("Starting solving the maze using DFS algorithm")
-            self.path, self.iterations, memory_usage_info, peak = self.dfs_algorithm()
+            self.path, memory_usage_info, peak = self.dfs_algorithm()
             print("Drawing the maze with the solution path")
             print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
-                self.mazeGenerator.animate_path(self.path, self.iterations)
+                self.mazeGenerator.animate_path(self.path)
             else:
-                self.mazeGenerator.drawMaze(self.path, self.iterations)
+                self.mazeGenerator.drawMaze(self.path)
 
         elif option == 3:  # A*
             print("Starting solving the maze using A* algorithm")
-            self.path, self.iterations, memory_usage_info, peak = self.astar_algorithm()
+            self.path, memory_usage_info, peak = self.astar_algorithm()
             print("Drawing the maze with the solution path")
             print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
-                self.mazeGenerator.animate_path(self.path, self.iterations)
+                self.mazeGenerator.animate_path(self.path)
             else:
-                self.mazeGenerator.drawMaze(self.path, self.iterations)
+                self.mazeGenerator.drawMaze(self.path)
 
         elif option == 4:  # Value Iteration
             print("Starting solving the maze using Value Iteration algorithm")
-            self.path, self.iterations, values, memory_usage_info, peak = self.value_iteration(
+            self.path, values, memory_usage_info, peak = self.value_iteration(
                 reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit, reward_value=500))
             print("Drawing the maze with the solution path")
             print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
-                self.mazeGenerator.value_iteration_animation(self.path, values, self.iterations)
+                self.mazeGenerator.value_iteration_animation(self.path, values)
             else:
-                self.mazeGenerator.drawMaze(self.path, self.iterations)
+                self.mazeGenerator.drawMaze(self.path)
 
         elif option == 5:  # Policy Iteration
             print("Starting solving the maze using Policy Iteration algorithm")
-            self.path, self.iterations, policy, values, memory_usage_info, peak = self.policy_iteration(
+            self.path, policy, values, memory_usage_info, peak = self.policy_iteration(
                 create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit))
             print("Drawing the maze with the solution path")
             print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
-                self.mazeGenerator.policy_iteration_animation(self.path, policy, values, self.iterations)
+                self.mazeGenerator.policy_iteration_animation(self.path, policy, values)
             else:
-                self.mazeGenerator.drawMaze(self.path, self.iterations)
+                self.mazeGenerator.drawMaze(self.path)
 
         elif option == 6:  # Comparison
             Decorator.enable_timer_decorator = False
             results_time = []
-            results_iterations = []
             results_memory = []
             dims = [dim, dim2, dim3]
             for i in range(len(dims)):
                 print("Processing maze dimension: ", dims[i])
                 self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
 
-                # Average time and iterations
+                # Average time and memory
                 average_time_bfs = 0
                 average_time_dfs = 0
                 average_time_astar = 0
                 average_time_value_iteration = 0
                 average_time_policy_iteration = 0
-
-                average_iterations_bfs = 0
-                average_iterations_dfs = 0
-                average_iterations_astar = 0
-                average_iterations_value_iteration = 0
-                average_iterations_policy_iteration = 0
 
                 average_memory_bfs = 0
                 average_memory_dfs = 0
@@ -137,18 +129,16 @@ class Algorithms:
 
                 repetitions = 20
 
-                # Run the algorithms multiple times to get the average time and iterations
+                # Run the algorithms multiple times to get the average time and memory
                 print("Starting processing bfs...")
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, bfs_iterations, memory_usage_info, peak = self.bfs_algorithm()
+                    self.path, memory_usage_info, peak = self.bfs_algorithm()
                     end = time.time()
                     average_time_bfs += (end - start)
-                    average_iterations_bfs += bfs_iterations
                     average_memory_bfs += memory_usage_info
                 average_time_bfs /= repetitions
-                average_iterations_bfs /= repetitions
                 average_memory_bfs /= repetitions
                 print("Finished processing bfs...")
 
@@ -156,13 +146,11 @@ class Algorithms:
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, dfs_iterations, memory_usage_info, peak = self.dfs_algorithm()
+                    self.path, memory_usage_info, peak = self.dfs_algorithm()
                     end = time.time()
                     average_time_dfs += (end - start)
-                    average_iterations_dfs += dfs_iterations
                     average_memory_dfs += memory_usage_info
                 average_time_dfs /= repetitions
-                average_iterations_dfs /= repetitions
                 average_memory_dfs /= repetitions
                 print("Finished processing dfs...")
 
@@ -170,13 +158,11 @@ class Algorithms:
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, astar_iterations, memory_usage_info, peak = self.astar_algorithm()
+                    self.path, memory_usage_info, peak = self.astar_algorithm()
                     end = time.time()
                     average_time_astar += (end - start)
-                    average_iterations_astar += astar_iterations
                     average_memory_astar += memory_usage_info
                 average_time_astar /= repetitions
-                average_iterations_astar /= repetitions
                 average_memory_astar /= repetitions
                 print("Finished processing astar...")
 
@@ -184,14 +170,12 @@ class Algorithms:
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, value_iterations, values, memory_usage_info, peak = self.value_iteration(
+                    self.path, values, memory_usage_info, peak = self.value_iteration(
                         reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit, reward_value=500))
                     end = time.time()
                     average_time_value_iteration += (end - start)
-                    average_iterations_value_iteration += value_iterations
                     average_memory_value_iteration += memory_usage_info
                 average_time_value_iteration /= repetitions
-                average_iterations_value_iteration /= repetitions
                 average_memory_value_iteration /= repetitions
                 print("Finished processing value iteration...")
 
@@ -199,22 +183,17 @@ class Algorithms:
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, policy_iterations, policy, values, memory_usage_info, peak = self.policy_iteration(
+                    self.path, policy, values, memory_usage_info, peak = self.policy_iteration(
                         create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit))
                     end = time.time()
                     average_time_policy_iteration += (end - start)
-                    average_iterations_policy_iteration += policy_iterations
                     average_memory_policy_iteration += memory_usage_info
                 average_time_policy_iteration /= repetitions
-                average_iterations_policy_iteration /= repetitions
                 average_memory_policy_iteration /= repetitions
 
                 results_time.append(
                     [dims[i], average_time_bfs, average_time_dfs, average_time_astar, average_time_value_iteration,
                      average_time_policy_iteration])
-                results_iterations.append(
-                    [dims[i], average_iterations_bfs, average_iterations_dfs, average_iterations_astar,
-                     average_iterations_value_iteration, average_iterations_policy_iteration])
                 results_memory.append([dims[i], average_memory_bfs, average_memory_dfs, average_memory_astar,
                                        average_memory_value_iteration, average_memory_policy_iteration])
 
@@ -224,14 +203,6 @@ class Algorithms:
             df.plot(x='Dimension', y=['BFS', 'DFS', 'A*', 'Value Iteration', 'Policy Iteration'], kind='line')
             plt.title('Time Comparison of Algorithms')
             plt.ylabel('Time (s)')
-            plt.show()
-
-            df_iterations = pd.DataFrame(results_iterations, columns=columns)
-            # print(df_iterations)
-            df_iterations.plot(x='Dimension', y=['BFS', 'DFS', 'A*', 'Value Iteration', 'Policy Iteration'],
-                               kind='line')
-            plt.title('Iterations Comparison of Algorithms')
-            plt.ylabel('Number of Iterations')
             plt.show()
 
             df_memory = pd.DataFrame(results_memory, columns=columns)
@@ -250,7 +221,7 @@ class Algorithms:
     
     The BFS algorithm is an uninformed search algorithm that explores all the nodes in the graph before moving to the next level
     
-    @return: The path and the number of iterations
+    @return: The path
     """
 
     @Decorator.memory
@@ -264,13 +235,12 @@ class Algorithms:
         q = Queue()  # FIFO
         q.put([start])  # Add the start position to the queue
 
-        iterations = 0
         while q.not_empty:  # While the queue is not empty
             path = q.get()
             current_pos = path[-1]
 
             if current_pos == end:  # If the current position is the exit
-                return path, iterations
+                return path
             else:
                 for move in possible_moves:  # For each possible move
                     new_position = (current_pos[0] + move[0], current_pos[1] + move[1])
@@ -279,15 +249,14 @@ class Algorithms:
                             new_path = list(path)
                             new_path.append(new_position)
                             q.put(new_path)
-            iterations += 1
-        return None, iterations
+        return None
 
     """
     Depth First Search Algorithm
     
     The DFS algorithm is an uninformed search algorithm that explores as far as possible along each branch before backtracking
     
-    @return: The path and the number of iterations
+    @return: The path
     """
 
     @Decorator.memory
@@ -300,13 +269,12 @@ class Algorithms:
 
         stack = [[start]]  # Add the start position to the stack
 
-        iterations = 0
         while stack:
             path = stack.pop()  # Pop the last element from the stack
             current_pos = path[-1]
 
             if current_pos == end:  # If the current position is the exit
-                return path, iterations
+                return path
             else:
                 for move in possible_moves:  # For each possible move
                     new_position = (current_pos[0] + move[0], current_pos[1] + move[1])
@@ -315,8 +283,7 @@ class Algorithms:
                             new_path = list(path)
                             new_path.append(new_position)
                             stack.append(new_path)
-            iterations += 1
-        return None, iterations
+        return None
 
     """
     Create Path
@@ -340,7 +307,7 @@ class Algorithms:
     
     The A* algorithm is an informed search algorithm that uses a heuristic to find the shortest path
 
-    @return: The path and the number of iterations
+    @return: The path
     """
 
     @Decorator.memory
@@ -359,14 +326,13 @@ class Algorithms:
         fscore = {start: heuristic(start, end)}  # Dictionary fscore
         heapq.heappush(open_set, (0, start))  # Push the start position to the priority queue
 
-        iterations = 0
         while open_set:
             current_pos = heapq.heappop(open_set)[1]  # Pop the first element from the priority queue
 
             closed_set.add(current_pos)  # Add the current position to the set
 
             if current_pos == end:
-                return self.create_path(came_from), iterations
+                return self.create_path(came_from)
 
             for move in possible_moves:
                 new_position = (current_pos[0] + move[0], current_pos[1] + move[1])
@@ -380,8 +346,7 @@ class Algorithms:
                     fscore[new_position] = tentative_gscore + heuristic(new_position, end)
                     heapq.heappush(open_set, (fscore[new_position], new_position))
                     closed_set.add(new_position)
-            iterations += 1
-        return None, iterations
+        return None
 
     """
     Find Path
@@ -443,7 +408,7 @@ class Algorithms:
     @param reward: The reward matrix
     @param gamma: The discount factor
     @param convergence_threshold: The threshold to determine convergence
-    @return: The path, number of iterations and value
+    @return: The path and value
     """
 
     @Decorator.memory_value_iteration
@@ -455,7 +420,6 @@ class Algorithms:
         value = np.zeros(maze.shape)  # Initialize the value matrix
 
         convergence = False
-        iterations = 0
         while not convergence:
             delta = 0
             for i in range(maze.shape[0]):
@@ -474,11 +438,10 @@ class Algorithms:
                     delta = max(delta, abs(temp - value[i, j]))
             if delta < convergence_threshold:
                 convergence = True
-            iterations += 1
 
         path = self.find_path(value)  # Find the path using the value matrix
 
-        return path, iterations, value
+        return path, value
 
     """
     Policy Iteration Algorithm
@@ -491,7 +454,7 @@ class Algorithms:
     @param reward: The reward matrix
     @param gamma: The discount factor
     @param convergence_threshold: The threshold to determine convergence
-    @return: The path, number of iterations, policy and value
+    @return: The path, policy and value
     """
 
     @Decorator.memory_policy_iteration
@@ -504,7 +467,6 @@ class Algorithms:
         policy = np.random.randint(0, len(possible_moves), maze.shape)  # Initialize the policy matrix randomly
 
         convergence = False
-        iterations = 0
         while not convergence:
             while True:
                 delta = 0
@@ -541,11 +503,10 @@ class Algorithms:
                         policy_stable = False
             if policy_stable:
                 break
-            iterations += 1
 
         path = self.find_path(value, policy)
 
-        return path, iterations, policy, value
+        return path, policy, value
 
 
 """
