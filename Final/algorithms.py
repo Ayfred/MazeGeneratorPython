@@ -5,6 +5,9 @@ import heapq
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
+import resource
+import sys
+from decorator import memory
 
 """
     This class contains the algorithms to solve the maze
@@ -47,8 +50,10 @@ class Algorithms:
     def option(self, option, dim, dim2, dim3, animation):
         if option == 1: # BFS
             print("Starting solving the maze using BFS algorithm")
-            self.path, self.iterations = self.bfs_algorithm()
+            self.path, self.iterations, memory_usage_info = self.bfs_algorithm()
             print("Drawing the maze with the solution path")
+            #result, memory_usage_info = self.bfs_algorithm()
+            print(f"Function result: {memory_usage_info}")
 
             if animation:
                 self.mazeGenerator.animate_path(self.path, self.iterations)
@@ -100,6 +105,7 @@ class Algorithms:
         elif option == 6: # Comparison
             results_time = []
             results_iterations = []
+            results_memory = []
             dims = [dim, dim2, dim3]
             for i in range(len(dims)):
                 print("Processing maze dimension: ", dims[i])
@@ -118,6 +124,14 @@ class Algorithms:
                 average_iterations_value_iteration = 0
                 average_iterations_policy_iteration = 0
 
+                average_memory_bfs = 0
+                average_memory_dfs = 0
+                average_memory_astar = 0
+                average_memory_value_iteration = 0
+                average_memory_policy_iteration = 0
+
+                average_memory_bfs_sys = 0
+
                 repetitions = 50 
 
                 # Run the algorithms multiple times to get the average time and iterations
@@ -129,8 +143,10 @@ class Algorithms:
                     end = time.time()
                     average_time_bfs += (end - start)
                     average_iterations_bfs += bfs_iterations
+                    average_memory_bfs += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 average_time_bfs /= repetitions
                 average_iterations_bfs /= repetitions
+                average_memory_bfs /= repetitions
                 print("Finished processing bfs...")
 
                 print("Starting processing dfs...")
@@ -141,8 +157,10 @@ class Algorithms:
                     end = time.time()
                     average_time_dfs += (end - start)
                     average_iterations_dfs += dfs_iterations
+                    average_memory_dfs += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 average_time_dfs /= repetitions
                 average_iterations_dfs /= repetitions
+                average_memory_dfs /= repetitions
                 print("Finished processing dfs...")
                 
                 print("Starting processing astar...")
@@ -153,8 +171,10 @@ class Algorithms:
                     end = time.time()
                     average_time_astar += (end - start)
                     average_iterations_astar += astar_iterations
+                    average_memory_astar += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 average_time_astar /= repetitions
                 average_iterations_astar /= repetitions
+                average_memory_astar /= repetitions
                 print("Finished processing astar...")
 
                 print("Starting processing value iteration...")
@@ -166,8 +186,10 @@ class Algorithms:
                     end = time.time()
                     average_time_value_iteration += (end - start)
                     average_iterations_value_iteration += value_iterations
+                    average_memory_value_iteration += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 average_time_value_iteration /= repetitions
                 average_iterations_value_iteration /= repetitions
+                average_memory_value_iteration /= repetitions
                 print("Finished processing value iteration...")
 
                 print("Starting processing policy iteration...")
@@ -179,12 +201,15 @@ class Algorithms:
                     end = time.time()
                     average_time_policy_iteration += (end - start)
                     average_iterations_policy_iteration += policy_iterations
+                    average_memory_policy_iteration += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 average_time_policy_iteration /= repetitions
                 average_iterations_policy_iteration /= repetitions
+                average_memory_policy_iteration /= repetitions
 
                 results_time.append([dims[i], average_time_bfs, average_time_dfs, average_time_astar, average_time_value_iteration, average_time_policy_iteration])
                 results_iterations.append([dims[i], average_iterations_bfs, average_iterations_dfs, average_iterations_astar, average_iterations_value_iteration, average_iterations_policy_iteration])
-
+                results_memory.append([dims[i], average_memory_bfs, average_memory_dfs, average_memory_astar, average_memory_value_iteration, average_memory_policy_iteration])
+                
             columns = ['Dimension', 'BFS', 'DFS', 'A*', 'Value Iteration', 'Policy Iteration']
             df = pd.DataFrame(results_time, columns=columns)
             # print(df)
@@ -200,6 +225,13 @@ class Algorithms:
             plt.title('Iterations Comparison of Algorithms')
             plt.ylabel('Number of Iterations')
             plt.show()
+
+            df_memory = pd.DataFrame(results_memory, columns=columns)
+            # print(df_memory)
+            df_memory.plot(x='Dimension', y=['BFS', 'DFS', 'A*', 'Value Iteration', 'Policy Iteration'], kind='line')
+            plt.title('Memory Comparison of Algorithms')
+            plt.ylabel('Memory (KB)')
+            plt.show()
         else:
             print(
                 "Invalid option. Please use '-1' for Bfs, '-2' for Dfs, '-3' for A*, '-4' for Value Iteration, "
@@ -212,6 +244,7 @@ class Algorithms:
     
     @return: The path and the number of iterations
     """
+    @memory
     def bfs_algorithm(self):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
