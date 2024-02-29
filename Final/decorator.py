@@ -1,9 +1,31 @@
 import tracemalloc
 import time
 
+"""
+    Decorator class to add timer and memory usage to the algorithms
+    
+    The decorator class is used to add the timer and memory usage to the algorithms. The class has 2 static methods:
+    - timer: This method is used to add the timer to the algorithms. It takes a function as a parameter and returns a wrapper
+    function that calculates the time elapsed to run the algorithm.
+    - memory: This method is used to add the memory usage to the algorithms. It takes a function as a parameter and returns a
+    wrapper function that calculates the memory usage of the algorithm.
+
+    @Author: Maxime Mu (Ayfred)
+    @Date: 2024-02-18
+"""
+
 
 class Decorator:
+    # Enable or disable the timer decorator
     enable_timer_decorator = False
+
+    """
+        This method is used to add the timer to the algorithms. It takes a function as a parameter and returns a wrapper
+        function that calculates the time elapsed to run the algorithm.
+        
+        @param func: The function to add the timer to
+        @return: The wrapper function that calculates the time elapsed to run the algorithm
+        """
 
     @staticmethod
     def timer(func):
@@ -46,6 +68,14 @@ class Decorator:
                 return func(*args, **kwargs)
 
         return wrapper_policy_iteration
+
+    """
+        This method is used to add the memory usage to the algorithms. It takes a function as a parameter and returns a
+        wrapper function that calculates the memory usage of the algorithm.
+        
+        @param func: The function to add the memory usage to
+        @return: The wrapper function that calculates the memory usage of the algorithm
+    """
 
     @staticmethod
     def memory(func):

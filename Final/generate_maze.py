@@ -15,11 +15,12 @@ from matplotlib.colors import Normalize
     The class also contains a method to draw the maze using matplotlib
     The class also contains a method to animate the solution path using matplotlib 
     
-    @Author: Maxime Mu
+    @Author: Maxime Mu (Ayfred)
     @Date: 2024-02-18
 """
 
 set_seed = random.seed(0)
+
 
 class GenerateMaze:
     """
@@ -27,32 +28,34 @@ class GenerateMaze:
     
     @param dim: The dimension of the maze (dim x dim)
     """
-    def __init__(self, dim):
-        self.height = dim # The height of the maze
-        self.width = dim # The width of the maze
-        self.maze = np.ones((self.width * 2 + 1, self.height * 2 + 1)) # The maze represented as a 2D numpy array
-        self.wall = 1 # The wall value
-        self.cell = 0 # The cell value
-        self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] # The possible directions to move in the maze
-        self.entrance = (1, 0) # The entrance of the maze
-        self.exit = (self.maze.shape[0] - 2, self.maze.shape[1] - 1) # The exit of the maze
 
-        self.generateMaze() # Generate the maze
+    def __init__(self, dim):
+        self.height = dim  # The height of the maze
+        self.width = dim  # The width of the maze
+        self.maze = np.ones((self.width * 2 + 1, self.height * 2 + 1))  # The maze represented as a 2D numpy array
+        self.wall = 1  # The wall value
+        self.cell = 0  # The cell value
+        self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # The possible directions to move in the maze
+        self.entrance = (1, 0)  # The entrance of the maze
+        self.exit = (self.maze.shape[0] - 2, self.maze.shape[1] - 1)  # The exit of the maze
+
+        self.generateMaze()  # Generate the maze
 
     """
     This method generates the maze using the recursive backtracking algorithm
     """
+
     def generateMaze(self):
-        x, y = (0, 0) # Define the starting point
-        self.maze[x][y] = self.cell # Set the starting point as a cell
+        x, y = (0, 0)  # Define the starting point
+        self.maze[x][y] = self.cell  # Set the starting point as a cell
 
         # Initialize the stack with the starting point
         stack = [(x, y)]
         while len(stack) > 0:
-            x, y = stack[-1] # Get the current position
+            x, y = stack[-1]  # Get the current position
 
-            directions = self.directions # Get the possible directions to move
-            random.shuffle(directions) # Shuffle the directions to move
+            directions = self.directions  # Get the possible directions to move
+            random.shuffle(directions)  # Shuffle the directions to move
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
                 if self.width > nx >= 0 <= ny < self.height and self.maze[2 * nx + 1][2 * ny + 1] == self.wall:
@@ -74,6 +77,7 @@ class GenerateMaze:
     @param path: The solution path to draw
     @param iterations: The total number of iterations to display
     """
+
     def drawMaze(self, path=None, iterations=0):
         fig, ax = plt.subplots(figsize=(10, 10))
 
@@ -93,7 +97,8 @@ class GenerateMaze:
         ax.set_yticks([])
 
         # Create a text object for the total number of iterations
-        iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center', transform=ax.transAxes, fontsize=14)
+        iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center',
+                                  transform=ax.transAxes, fontsize=14)
         ax.set_title("Solution Path", fontsize=16)
         iterations_text.set_text(f"Total Iterations: {iterations}")
 
@@ -110,6 +115,7 @@ class GenerateMaze:
     @param path: The solution path to animate
     @param iterations: The total number of iterations to display
     """
+
     def animate_path(self, path, iterations):
         fig, ax = plt.subplots(figsize=(10, 10))
 
@@ -132,7 +138,8 @@ class GenerateMaze:
         ax.set_yticks([])
 
         # Create a text object for the total number of iterations
-        iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center', transform=ax.transAxes, fontsize=14)
+        iterations_text = ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center',
+                                  transform=ax.transAxes, fontsize=14)
         ax.set_title("Solution Path Animation", fontsize=16)
         iterations_text.set_text(f"Total Iterations: {iterations}")
 
@@ -150,6 +157,7 @@ class GenerateMaze:
     @param values: The value matrix to visualize
     @param iterations: The total number of iterations to display
     """
+
     def value_iteration_animation(self, path, values, iterations):
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
@@ -163,7 +171,7 @@ class GenerateMaze:
         cmap = plt.cm.inferno
 
         plotted_path = []  # List to store the plotted path coordinates
-        
+
         def draw_grid():
             ax.cla()
             ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
@@ -172,7 +180,8 @@ class GenerateMaze:
                 for j in range(len(normalized_values[i])):
                     if self.maze[i, j] != 1:  # Assuming 1 represents a wall
                         val_color = cmap(normalized_values[i, j])
-                        ax.text(j, i, f"{normalized_values[i, j]:.2f}", ha='center', va='center', fontsize=10, color=val_color)
+                        ax.text(j, i, f"{normalized_values[i, j]:.2f}", ha='center', va='center', fontsize=10,
+                                color=val_color)
 
         def animate(frame):
             draw_grid()
@@ -185,7 +194,8 @@ class GenerateMaze:
             ax.set_yticks([])
 
             # Display the total number of iterations
-            ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center', transform=ax.transAxes, fontsize=14)
+            ax.text(0.5, 1.05, f"Total Iterations: {iterations}", ha='center', va='center', transform=ax.transAxes,
+                    fontsize=14)
 
             if frame == len(path) - 1:
                 ani.event_source.stop()
@@ -201,7 +211,8 @@ class GenerateMaze:
     @param policy: The policy matrix to visualize
     @param values: The value matrix to visualize
     @param iterations: The total number of iterations to display
-    """        
+    """
+
     def policy_iteration_animation(self, path, policy, values, iterations):
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.imshow(self.maze, cmap=plt.cm.binary, interpolation='nearest')
@@ -219,13 +230,17 @@ class GenerateMaze:
 
             # Directional arrows
             if policy[i, j] == 1:  # Up
-                ax.arrow(j, i, 0, -arrow_size, head_width=arrow_head_width, head_length=arrow_head_length, fc=color, ec=color)
+                ax.arrow(j, i, 0, -arrow_size, head_width=arrow_head_width, head_length=arrow_head_length, fc=color,
+                         ec=color)
             elif policy[i, j] == 3:  # Right
-                ax.arrow(j, i, arrow_size, 0, head_width=arrow_head_width, head_length=arrow_head_length, fc=color, ec=color)
+                ax.arrow(j, i, arrow_size, 0, head_width=arrow_head_width, head_length=arrow_head_length, fc=color,
+                         ec=color)
             elif policy[i, j] == 2:  # Down
-                ax.arrow(j, i, 0, arrow_size, head_width=arrow_head_width, head_length=arrow_head_length, fc=color, ec=color)
+                ax.arrow(j, i, 0, arrow_size, head_width=arrow_head_width, head_length=arrow_head_length, fc=color,
+                         ec=color)
             elif policy[i, j] == 0:  # Left
-                ax.arrow(j, i, -arrow_size, 0, head_width=arrow_head_width, head_length=arrow_head_length, fc=color, ec=color)
+                ax.arrow(j, i, -arrow_size, 0, head_width=arrow_head_width, head_length=arrow_head_length, fc=color,
+                         ec=color)
 
         # Draw all arrows with color intensity based on values
         for i in range(len(policy)):

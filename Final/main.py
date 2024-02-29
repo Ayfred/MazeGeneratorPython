@@ -6,7 +6,7 @@ import algorithms
     The user can choose the algorithm to run and the dimension of the maze.
     The user can also choose to animate the process or not.
     
-    @Author: Maxime Mu
+    @Author: Maxime Mu (Ayfred)
     @Date: 2024-02-18
 """
 
