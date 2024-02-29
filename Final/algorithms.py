@@ -5,9 +5,7 @@ import heapq
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-import resource
-import sys
-from decorator import memory
+from decorator import Decorator
 
 """
     This class contains the algorithms to solve the maze
@@ -48,12 +46,12 @@ class Algorithms:
     @param animation: True if the animation is enabled, False otherwise
     """
     def option(self, option, dim, dim2, dim3, animation):
+        Decorator.enable_timer_decorator = True
         if option == 1: # BFS
             print("Starting solving the maze using BFS algorithm")
-            self.path, self.iterations, memory_usage_info = self.bfs_algorithm()
+            self.path, self.iterations, memory_usage_info, peak = self.bfs_algorithm()
             print("Drawing the maze with the solution path")
-            #result, memory_usage_info = self.bfs_algorithm()
-            print(f"Function result: {memory_usage_info}")
+            print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
                 self.mazeGenerator.animate_path(self.path, self.iterations)
@@ -62,8 +60,9 @@ class Algorithms:
 
         elif option == 2: # DFS
             print("Starting solving the maze using DFS algorithm")
-            self.path, self.iterations = self.dfs_algorithm()
+            self.path, self.iterations, memory_usage_info, peak = self.dfs_algorithm()
             print("Drawing the maze with the solution path")
+            print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
                 self.mazeGenerator.animate_path(self.path, self.iterations)
@@ -72,8 +71,9 @@ class Algorithms:
 
         elif option == 3: # A*
             print("Starting solving the maze using A* algorithm")
-            self.path, self.iterations = self.astar_algorithm()
+            self.path, self.iterations, memory_usage_info, peak = self.astar_algorithm()
             print("Drawing the maze with the solution path")
+            print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
                 self.mazeGenerator.animate_path(self.path, self.iterations)
@@ -82,9 +82,10 @@ class Algorithms:
 
         elif option == 4: # Value Iteration
             print("Starting solving the maze using Value Iteration algorithm")
-            self.path, self.iterations, values = self.value_iteration(
+            self.path, self.iterations, values, memory_usage_info, peak = self.value_iteration(
                 reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit, reward_value=500))
             print("Drawing the maze with the solution path")
+            print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
                 self.mazeGenerator.value_iteration_animation(self.path, values, self.iterations)
@@ -93,9 +94,10 @@ class Algorithms:
 
         elif option == 5: # Policy Iteration
             print("Starting solving the maze using Policy Iteration algorithm")
-            self.path, self.iterations, policy, values = self.policy_iteration(
+            self.path, self.iterations, policy, values, memory_usage_info, peak = self.policy_iteration(
                 create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit))
             print("Drawing the maze with the solution path")
+            print(f'Current memory usage is {memory_usage_info / 10 ** 3}KB; Peak was {peak / 10 ** 3}KB')
 
             if animation:
                 self.mazeGenerator.policy_iteration_animation(self.path, policy, values, self.iterations)
@@ -103,6 +105,7 @@ class Algorithms:
                 self.mazeGenerator.drawMaze(self.path, self.iterations)
 
         elif option == 6: # Comparison
+            Decorator.enable_timer_decorator = False
             results_time = []
             results_iterations = []
             results_memory = []
@@ -130,20 +133,18 @@ class Algorithms:
                 average_memory_value_iteration = 0
                 average_memory_policy_iteration = 0
 
-                average_memory_bfs_sys = 0
-
-                repetitions = 50 
+                repetitions = 20
 
                 # Run the algorithms multiple times to get the average time and iterations
                 print("Starting processing bfs...")
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, bfs_iterations = self.bfs_algorithm()
+                    self.path, bfs_iterations, memory_usage_info, peak = self.bfs_algorithm()
                     end = time.time()
                     average_time_bfs += (end - start)
                     average_iterations_bfs += bfs_iterations
-                    average_memory_bfs += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                    average_memory_bfs += memory_usage_info
                 average_time_bfs /= repetitions
                 average_iterations_bfs /= repetitions
                 average_memory_bfs /= repetitions
@@ -153,11 +154,11 @@ class Algorithms:
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, dfs_iterations = self.dfs_algorithm()
+                    self.path, dfs_iterations, memory_usage_info, peak = self.dfs_algorithm()
                     end = time.time()
                     average_time_dfs += (end - start)
                     average_iterations_dfs += dfs_iterations
-                    average_memory_dfs += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                    average_memory_dfs += memory_usage_info
                 average_time_dfs /= repetitions
                 average_iterations_dfs /= repetitions
                 average_memory_dfs /= repetitions
@@ -167,11 +168,11 @@ class Algorithms:
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, astar_iterations = self.astar_algorithm()
+                    self.path, astar_iterations, memory_usage_info, peak = self.astar_algorithm()
                     end = time.time()
                     average_time_astar += (end - start)
                     average_iterations_astar += astar_iterations
-                    average_memory_astar += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                    average_memory_astar += memory_usage_info
                 average_time_astar /= repetitions
                 average_iterations_astar /= repetitions
                 average_memory_astar /= repetitions
@@ -181,12 +182,12 @@ class Algorithms:
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, value_iterations, values = self.value_iteration(
+                    self.path, value_iterations, values, memory_usage_info, peak = self.value_iteration(
                         reward=create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit, reward_value=500))
                     end = time.time()
                     average_time_value_iteration += (end - start)
                     average_iterations_value_iteration += value_iterations
-                    average_memory_value_iteration += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                    average_memory_value_iteration += memory_usage_info
                 average_time_value_iteration /= repetitions
                 average_iterations_value_iteration /= repetitions
                 average_memory_value_iteration /= repetitions
@@ -196,12 +197,12 @@ class Algorithms:
                 for j in range(repetitions):
                     self.mazeGenerator = generate_maze.GenerateMaze(dims[i])
                     start = time.time()
-                    self.path, policy_iterations, policy, values = self.policy_iteration(
+                    self.path, policy_iterations, policy, values, memory_usage_info, peak = self.policy_iteration(
                         create_reward(self.mazeGenerator.maze, self.mazeGenerator.exit))
                     end = time.time()
                     average_time_policy_iteration += (end - start)
                     average_iterations_policy_iteration += policy_iterations
-                    average_memory_policy_iteration += resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                    average_memory_policy_iteration += memory_usage_info
                 average_time_policy_iteration /= repetitions
                 average_iterations_policy_iteration /= repetitions
                 average_memory_policy_iteration /= repetitions
@@ -230,7 +231,7 @@ class Algorithms:
             # print(df_memory)
             df_memory.plot(x='Dimension', y=['BFS', 'DFS', 'A*', 'Value Iteration', 'Policy Iteration'], kind='line')
             plt.title('Memory Comparison of Algorithms')
-            plt.ylabel('Memory (KB)')
+            plt.ylabel('Memory (MB)')
             plt.show()
         else:
             print(
@@ -244,7 +245,8 @@ class Algorithms:
     
     @return: The path and the number of iterations
     """
-    @memory
+    @Decorator.memory
+    @Decorator.timer
     def bfs_algorithm(self):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -279,6 +281,8 @@ class Algorithms:
     
     @return: The path and the number of iterations
     """
+    @Decorator.memory
+    @Decorator.timer
     def dfs_algorithm(self):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -328,6 +332,8 @@ class Algorithms:
 
     @return: The path and the number of iterations
     """
+    @Decorator.memory
+    @Decorator.timer
     def astar_algorithm(self):
         start = self.mazeGenerator.entrance
         end = self.mazeGenerator.exit
@@ -426,9 +432,9 @@ class Algorithms:
     @param convergence_threshold: The threshold to determine convergence
     @return: The path, number of iterations and value
     """
-    def value_iteration(self, reward, gamma=0.99, convergence_threshold=0.00000000001):
-        start = self.mazeGenerator.entrance
-        end = self.mazeGenerator.exit
+    @Decorator.memory_value_iteration
+    @Decorator.timer_value_iteration
+    def value_iteration(self, reward, gamma=0.99, convergence_threshold=0.000001):
         maze = self.mazeGenerator.maze
         possible_moves = self.mazeGenerator.directions
 
@@ -473,9 +479,9 @@ class Algorithms:
     @param convergence_threshold: The threshold to determine convergence
     @return: The path, number of iterations, policy and value
     """
-    def policy_iteration(self, reward, gamma=0.99, convergence_threshold=0.001):
-        start = self.mazeGenerator.entrance
-        end = self.mazeGenerator.exit
+    @Decorator.memory_policy_iteration
+    @Decorator.timer_policy_iteration
+    def policy_iteration(self, reward, gamma=0.99, convergence_threshold=0.0001):
         maze = self.mazeGenerator.maze
         possible_moves = self.mazeGenerator.directions
 
@@ -503,7 +509,6 @@ class Algorithms:
                     break
 
             policy_stable = True
-
 
             for i in range(maze.shape[0]):
                 for j in range(maze.shape[1]):
