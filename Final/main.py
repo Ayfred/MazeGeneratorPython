@@ -7,7 +7,7 @@ import algorithms
     The user can also choose to animate the process or not.
     
     @Author: Maxime Mu (Ayfred)
-    @Date: 2024-02-18
+    @Date: 2024-02-29
 """
 
 

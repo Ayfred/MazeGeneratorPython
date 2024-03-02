@@ -12,7 +12,7 @@ from decorator import Decorator
     The algorithms are: BFS, DFS, A*, Value Iteration, Policy Iteration
     
     @Author: Maxime Mu (Ayfred)
-    @Date: 2024-02-18
+    @Date: 2024-02-29
 """
 set_seed = 3
 np.random.seed(set_seed)
@@ -127,7 +127,7 @@ class Algorithms:
                 average_memory_value_iteration = 0
                 average_memory_policy_iteration = 0
 
-                repetitions = 50
+                repetitions = 20
 
                 # Run the algorithms multiple times to get the average time and memory
                 print("Starting processing bfs...")
@@ -462,7 +462,7 @@ class Algorithms:
     def policy_iteration(self, reward, gamma=0.99, convergence_threshold=0.0001):
         maze = self.mazeGenerator.maze
         possible_moves = self.mazeGenerator.directions
-        
+
         value = np.zeros(maze.shape)  # Initialize the value matrix
         policy = np.random.randint(0, len(possible_moves), maze.shape)  # Initialize the policy matrix randomly
 

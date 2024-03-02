@@ -16,7 +16,7 @@ from matplotlib.colors import Normalize
     The class also contains a method to animate the solution path using matplotlib 
     
     @Author: Maxime Mu (Ayfred)
-    @Date: 2024-02-18
+    @Date: 2024-02-29
 """
 
 
