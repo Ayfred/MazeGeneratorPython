@@ -54,9 +54,9 @@ class GenerateMaze:
         while len(stack) > 0:
             x, y = stack[-1]  # Get the current position
 
-            directions = self.directions  # Get the possible directions to move
-            random.shuffle(directions)  # Shuffle the directions to move
-            for dx, dy in directions:
+            random_directions = self.directions.copy()  # Get the possible directions to move
+            random.shuffle(random_directions)  # Shuffle the directions to move
+            for dx, dy in random_directions:
                 nx, ny = x + dx, y + dy
                 if self.width > nx >= 0 <= ny < self.height and self.maze[2 * nx + 1][2 * ny + 1] == self.wall:
                     self.maze[2 * nx + 1][2 * ny + 1] = self.cell
@@ -157,7 +157,7 @@ class GenerateMaze:
         normalized_values = (values - min_val) / (max_val - min_val) if max_val != min_val else np.zeros_like(values)
 
         # Colormap for visualizing the values
-        cmap = plt.cm.inferno
+        cmap = plt.cm.viridis
 
         plotted_path = []  # List to store the plotted path coordinates
 
@@ -170,7 +170,7 @@ class GenerateMaze:
                     if self.maze[i, j] != 1:  # Assuming 1 represents a wall
                         val_color = cmap(normalized_values[i, j])
                         ax.text(j, i, f"{normalized_values[i, j]:.2f}", ha='center', va='center', fontsize=10,
-                                color=val_color)
+                                color=val_color, fontweight='bold')
 
         def animate(frame):
             draw_grid()
@@ -211,20 +211,21 @@ class GenerateMaze:
             arrow_size = 0.5
             arrow_head_width = 0.3
             arrow_head_length = 0.3
+            arrow_boldness = 2
 
             # Directional arrows
-            if policy[i, j] == 1:  # Up
+            if policy[i, j] == 3: # 3 represents up
                 ax.arrow(j, i, 0, -arrow_size, head_width=arrow_head_width, head_length=arrow_head_length, fc=color,
-                         ec=color)
-            elif policy[i, j] == 3:  # Right
+                         ec=color, linewidth=arrow_boldness)
+            elif policy[i, j] == 0: # 0 represents right
                 ax.arrow(j, i, arrow_size, 0, head_width=arrow_head_width, head_length=arrow_head_length, fc=color,
-                         ec=color)
-            elif policy[i, j] == 2:  # Down
+                         ec=color, linewidth=arrow_boldness)
+            elif policy[i, j] == 1: # 1 represents down
                 ax.arrow(j, i, 0, arrow_size, head_width=arrow_head_width, head_length=arrow_head_length, fc=color,
-                         ec=color)
-            elif policy[i, j] == 0:  # Left
+                         ec=color, linewidth=arrow_boldness)
+            elif policy[i, j] == 2: # 2 represents left
                 ax.arrow(j, i, -arrow_size, 0, head_width=arrow_head_width, head_length=arrow_head_length, fc=color,
-                         ec=color)
+                         ec=color, linewidth=arrow_boldness)
 
         # Draw all arrows with color intensity based on values
         for i in range(len(policy)):
