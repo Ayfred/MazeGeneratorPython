@@ -1,4 +1,4 @@
-This assignment is made by Maxime Mu.
+This assignment is made by Ayfred.
 Date: 2024-02-29
 ------------------------------------------------------------------------------------------------------------------------
 The goal of this assignment is to implement the following algorithms:
